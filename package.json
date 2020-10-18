@@ -1,0 +1,25 @@
+{
+  "name": "hoverlord",
+  "version": "0.0.1",
+  "description": "Actor modeling library and concurrency primitives for NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dottorblaster/hoverlord.git"
+  },
+  "keywords": [
+    "concurrency",
+    "actor",
+    "actor",
+    "modeling"
+  ],
+  "author": "Alessio Biancalana",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dottorblaster/hoverlord/issues"
+  },
+  "homepage": "https://github.com/dottorblaster/hoverlord#readme"
+}
