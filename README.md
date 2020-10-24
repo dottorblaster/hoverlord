@@ -6,17 +6,17 @@ Here's a code snippet, make good use of it.
 
 ```js
 const http = require('http');
-const { spawn, send } = require('./');
+const { spawn, send } = require('hoverlord');
 
 spawn(() => {
-  const { receive } = require('./');
+  const { receive } = require('hoverlord');
   receive((_state, message) => {
     console.log(`log: ${message}`);
   });
 }, 'logger');
 
 spawn(() => {
-  const { receive, send } = require('./');
+  const { receive, send } = require('hoverlord');
   return receive((state, { message }) => {
     switch (message) {
       case 'ping':
