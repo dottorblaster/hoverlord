@@ -4,7 +4,7 @@ class Supervisor {
   remove(name) {
     if (this.isNamePresent(name)) {
       const { processes } = this;
-      delete processes[name]; 
+      delete processes[name];
     }
     return this.processes;
   }
@@ -30,7 +30,7 @@ class Supervisor {
   send(name, payload) {
     if (this.isNamePresent(name)) {
       const process = this.getProcess(name);
-      process.send(payload);
+      process.postMessage(payload);
       return true;
     }
     return false;
