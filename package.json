@@ -1,6 +1,6 @@
 {
   "name": "hoverlord",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Actor modeling library and concurrency primitives for NodeJS",
   "main": "index.js",
   "scripts": {
