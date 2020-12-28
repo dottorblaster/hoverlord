@@ -27,9 +27,21 @@ class Supervisor {
     }
   }
 
-  send(name, payload) {
-    if (this.isNamePresent(name)) {
-      const process = this.getProcess(name);
+  // TODO
+  getProcessByThreadId(id) {}
+
+  send(recipient, payload) {
+    if (typeof recipient === 'number') {
+      for (const name in this.processes) {
+        if (this.processes[name].threadId === recipient) {
+          this.processes[name].postMessage(payload);
+          return true;
+        }
+      }
+    }
+
+    if (typeof recipient === 'string' && this.isNamePresent(recipient)) {
+      const process = this.getProcess(recipient);
       process.postMessage(payload);
       return true;
     }
