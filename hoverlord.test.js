@@ -23,6 +23,6 @@ describe('hoverlord', () => {
 
     const { message: result } = await call('demoActor', 'pang');
     shutdown();
-    expect(result).toBe(4); 
+    expect(result).toBe(4);
   });
 });

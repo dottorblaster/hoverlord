@@ -46,7 +46,6 @@ const spawn = (job, name) => {
       masterSupervisor.store(name, actor);
       resolve(actor);
     });
-
   });
 };
 
