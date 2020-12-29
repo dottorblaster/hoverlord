@@ -2,7 +2,7 @@ const { spawn, call, send, shutdown } = require('./index');
 
 describe('hoverlord', () => {
   it('inspects the state of a process', async () => {
-    const actor = await spawn(() => {
+    await spawn(() => {
       const { receive, reply } = require('./index');
       return receive((state, message) => {
         switch (message.message) {

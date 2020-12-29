@@ -18,7 +18,7 @@ class Supervisor {
   }
 
   isNamePresent(name) {
-    return this.processes.hasOwnProperty(name);
+    return Object.prototype.hasOwnProperty.call(this.processes, name);
   }
 
   getProcess(name) {
@@ -28,7 +28,9 @@ class Supervisor {
   }
 
   // TODO
-  getProcessByThreadId(id) {}
+  getProcessByThreadId(id) {
+    return id;
+  }
 
   send(recipient, payload) {
     if (typeof recipient === 'number') {
