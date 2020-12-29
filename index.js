@@ -26,7 +26,7 @@ const createWorkerContent = (jobCode) => `
 `;
 
 const spawn = (job, name) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const jobCode = job.toString();
     const fileHash = sha256(jobCode);
     const workerPath = `/tmp/${fileHash}.mjs`;
@@ -83,7 +83,7 @@ const reply = (request, response) => {
 };
 
 const call = (recipient, message) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const fingerprint = createFingerprint();
 
     if (isMainThread) {
