@@ -4,7 +4,8 @@
   "description": "Actor modeling library and concurrency primitives for NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
