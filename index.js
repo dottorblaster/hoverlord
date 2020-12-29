@@ -26,23 +26,26 @@ const createWorkerContent = (jobCode) => `
 `;
 
 const spawn = (job, name) => {
-  const jobCode = job.toString();
-  const fileHash = sha256(jobCode);
-  const workerPath = `/tmp/${fileHash}.mjs`;
-  const workerContent = createWorkerContent(jobCode);
-  writeFile(workerPath, workerContent, (err) => {
-    if (err) {
-      return console.error(`Error in creating ${workerPath}: ${err}`);
-    }
-
-    const actor = new Worker(workerPath);
-    actor.on('message', (payload) => {
-      if (isFromWorker(payload)) {
-        const { recipient } = payload;
-        masterSupervisor.send(recipient, payload);
+  return new Promise((resolve, reject) => {
+    const jobCode = job.toString();
+    const fileHash = sha256(jobCode);
+    const workerPath = `/tmp/${fileHash}.mjs`;
+    const workerContent = createWorkerContent(jobCode);
+    writeFile(workerPath, workerContent, (err) => {
+      if (err) {
+        return console.error(`Error in creating ${workerPath}: ${err}`);
       }
+
+      const actor = new Worker(workerPath);
+      actor.on('message', (payload) => {
+        if (isFromWorker(payload)) {
+          const { recipient } = payload;
+          masterSupervisor.send(recipient, payload);
+        }
+      });
+      masterSupervisor.store(name, actor);
+      resolve(actor);
     });
-    masterSupervisor.store(name, actor);
   });
 };
 
@@ -114,12 +117,17 @@ const call = (recipient, message) => {
   });
 };
 
+const shutdown = (supervisor = masterSupervisor) => {
+  supervisor.shutdown();
+};
+
 module.exports = {
   spawn,
   receive,
   send,
   call,
   reply,
+  shutdown,
   createSupervisor,
   masterSupervisor,
 };

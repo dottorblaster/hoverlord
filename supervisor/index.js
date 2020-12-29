@@ -47,6 +47,12 @@ class Supervisor {
     }
     return false;
   }
+
+  shutdown() {
+    for (const name in this.processes) {
+      this.processes[name].terminate();
+    }
+  }
 }
 
 const createSupervisor = () => new Supervisor();
