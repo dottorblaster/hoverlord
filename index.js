@@ -96,18 +96,22 @@ const call = (recipient, messageContent) => {
 
     if (isMainThread) {
       const actor = masterSupervisor.getProcess(recipient);
-      actor.on('message', (payload) => {
+      const callback = (payload) => {
         if (payload.fingerprint === fingerprint) {
           resolve(payload);
+          actor.off('message', callback);
         }
-      });
+      };
+      actor.on('message', callback);
       masterSupervisor.send(recipient, message);
     } else {
-      parentPort.on('message', (payload) => {
+      const callback = (payload) => {
         if (payload.fingerprint === fingerprint) {
           resolve(payload);
+          parentPort.off('message', callback);
         }
-      });
+      };
+      parentPort.on('message', callback);
       parentPort.postMessage(message);
     }
   });
