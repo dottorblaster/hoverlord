@@ -1,13 +1,11 @@
 const { spawn, call, send, shutdown } = require('./index');
 
-jest.setTimeout(30000);
-
 describe('hoverlord', () => {
   it('can call from the main process', async () => {
     await spawn(() => {
       const { receive, reply } = require('./index');
       return receive((state, message) => {
-        switch (message.message) {
+        switch (message.content) {
           case 'ping':
             return state + 1;
           case 'pang':
@@ -23,7 +21,7 @@ describe('hoverlord', () => {
     send('demoActor', 'ping');
     send('demoActor', 'ping');
 
-    const { message: result } = await call('demoActor', 'pang');
+    const { content: result } = await call('demoActor', 'pang');
     shutdown();
     expect(result).toBe(4);
   });
@@ -34,12 +32,12 @@ describe('hoverlord', () => {
       return receive(
         (state, message) => {
           if (
-            Object.prototype.hasOwnProperty.call(message.message, 'fakeCount')
+            Object.prototype.hasOwnProperty.call(message.content, 'fakeCount')
           ) {
             reply(message, state);
-            return message.message;
+            return message.content;
           }
-          if (message.message === 'inspect') {
+          if (message.content === 'inspect') {
             reply(message, state);
           }
           return state;
@@ -51,11 +49,11 @@ describe('hoverlord', () => {
     await spawn(() => {
       const { receive, reply, call } = require('./index');
       return receive((state, message) => {
-        switch (message.message) {
+        switch (message.content) {
           case 'do_the_call': {
             const newState = { fakeCount: 1000 };
-            call('statefulActor', newState).then((remoteState) => {
-              reply(message, ['done', remoteState]);
+            call('statefulActor', newState).then(({ content }) => {
+              reply(message, ['done', content]);
             });
             return null;
           }
@@ -66,16 +64,19 @@ describe('hoverlord', () => {
     }, 'caller');
 
     const {
-      message: [callerResponse, remoteState],
+      content: [callerResponse, remoteState],
     } = await call('caller', 'do_the_call');
 
-    const { message: result } = await call('statefulActor', 'inspect');
+    const { content: result, fromWorker } = await call(
+      'statefulActor',
+      'inspect',
+    );
 
     shutdown();
 
     expect(callerResponse).toBe('done');
-    expect(remoteState.message).toEqual([1, 2, 3]);
-    expect(remoteState.fromWorker).toBe(true);
+    expect(remoteState).toEqual([1, 2, 3]);
+    expect(fromWorker).toBe(true);
     expect(result).toEqual({ fakeCount: 1000 });
   });
 });
