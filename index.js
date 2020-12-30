@@ -67,9 +67,9 @@ const send = (recipient, content) => {
 const reply = (request, response) => {
   const { fingerprint: requestFingerprint, sender: requestSender } = request;
   const message = {
+    requestSender,
     content: response,
     recipient: requestSender,
-    requestSender,
     fingerprint: requestFingerprint,
     sender: threadId,
     fromWorker: !isMainThread,
@@ -86,6 +86,14 @@ const call = (recipient, messageContent) => {
   return new Promise((resolve) => {
     const fingerprint = createFingerprint();
 
+    const message = {
+      recipient,
+      fingerprint,
+      content: messageContent,
+      sender: threadId,
+      fromWorker: !isMainThread,
+    };
+
     if (isMainThread) {
       const actor = masterSupervisor.getProcess(recipient);
       actor.on('message', (payload) => {
@@ -93,26 +101,14 @@ const call = (recipient, messageContent) => {
           resolve(payload);
         }
       });
-      masterSupervisor.send(recipient, {
-        fromWorker: false,
-        recipient,
-        content: messageContent,
-        fingerprint,
-        sender: threadId,
-      });
+      masterSupervisor.send(recipient, message);
     } else {
       parentPort.on('message', (payload) => {
         if (payload.fingerprint === fingerprint) {
           resolve(payload);
         }
       });
-      parentPort.postMessage({
-        fromWorker: true,
-        recipient,
-        fingerprint,
-        content: messageContent,
-        sender: threadId,
-      });
+      parentPort.postMessage(message);
     }
   });
 };
