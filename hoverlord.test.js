@@ -1,5 +1,8 @@
 const { spawn, call, send, shutdown } = require('./index');
 
+const findDuplicates = (arr) =>
+  arr.filter((item, index) => arr.indexOf(item) != index);
+
 describe('hoverlord', () => {
   it('can call from the main process', async () => {
     await spawn(() => {
@@ -78,5 +81,29 @@ describe('hoverlord', () => {
     expect(remoteState).toEqual([1, 2, 3]);
     expect(fromWorker).toBe(true);
     expect(result).toEqual({ fakeCount: 1000 });
+  });
+
+  it('should not create duplicate fingerprints', async () => {
+    await spawn(() => {
+      const { receive, reply } = require('./index');
+      return receive((_, message) => {
+        if (message.content === 'ping') {
+          reply(message, 'pong');
+        }
+      });
+    }, 'receiver');
+
+    let fingerprints = [];
+
+    for (let i = 0; i < 10000; i++) {
+      const response = await call('receiver', 'ping');
+      fingerprints.push(response.fingerprint);
+      expect(response.content).toBe('pong');
+    }
+
+    shutdown();
+
+    const duplicates = [...new Set(findDuplicates(fingerprints))];
+    expect(duplicates).toHaveLength(0);
   });
 });
