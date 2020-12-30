@@ -56,18 +56,18 @@ const receive = (reducer, startState = undefined) => {
   });
 };
 
-const send = (recipient, message) => {
+const send = (recipient, content) => {
   if (isMainThread) {
-    masterSupervisor.send(recipient, { message });
+    masterSupervisor.send(recipient, { content });
   } else {
-    parentPort.postMessage({ fromWorker: true, recipient, message });
+    parentPort.postMessage({ fromWorker: true, recipient, content });
   }
 };
 
 const reply = (request, response) => {
   const { fingerprint: requestFingerprint, sender: requestSender } = request;
   const message = {
-    message: response,
+    content: response,
     recipient: requestSender,
     requestSender,
     fingerprint: requestFingerprint,
@@ -82,7 +82,7 @@ const reply = (request, response) => {
   }
 };
 
-const call = (recipient, message) => {
+const call = (recipient, messageContent) => {
   return new Promise((resolve) => {
     const fingerprint = createFingerprint();
 
@@ -96,7 +96,7 @@ const call = (recipient, message) => {
       masterSupervisor.send(recipient, {
         fromWorker: false,
         recipient,
-        message,
+        content: messageContent,
         fingerprint,
         sender: threadId,
       });
@@ -110,7 +110,7 @@ const call = (recipient, message) => {
         fromWorker: true,
         recipient,
         fingerprint,
-        message,
+        content: messageContent,
         sender: threadId,
       });
     }
