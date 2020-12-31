@@ -10,15 +10,15 @@ const { spawn, send } = require('hoverlord');
 
 spawn(() => {
   const { receive } = require('hoverlord');
-  receive((_state, message) => {
+  receive((_state, { content }) => {
     console.log(`log: ${message}`);
   });
 }, 'logger');
 
 spawn(() => {
   const { receive, send } = require('hoverlord');
-  return receive((state, { message }) => {
-    switch (message) {
+  return receive((state, message) => {
+    switch (message.content) {
       case 'ping':
         const newState = state + 1;
         send('logger', newState);
@@ -31,7 +31,7 @@ spawn(() => {
 
 http
   .createServer((req, res) => {
-    send('stateReducer', { message: 'ping' });
+    send('stateReducer', 'ping');
     res.writeHead(200);
     res.end(`Current process\n ${process.pid}`);
   })
