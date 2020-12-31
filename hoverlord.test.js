@@ -87,8 +87,9 @@ describe('hoverlord', () => {
     await spawn(() => {
       const { receive, reply } = require('./index');
       return receive((_, message) => {
-        if (message.content === 'ping') {
-          reply(message, 'pong');
+        const [term, count] = message.content;
+        if (term === 'ping') {
+          reply(message, ['pong', count]);
         }
       });
     }, 'receiver');
@@ -96,9 +97,9 @@ describe('hoverlord', () => {
     let fingerprints = [];
 
     for (let i = 0; i < 10000; i++) {
-      const response = await call('receiver', 'ping');
+      const response = await call('receiver', ['ping', i]);
       fingerprints.push(response.fingerprint);
-      expect(response.content).toBe('pong');
+      expect(response.content).toEqual(['pong', i]);
     }
 
     shutdown();
