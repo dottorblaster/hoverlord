@@ -13,7 +13,7 @@ const masterSupervisor = isMainThread ? createSupervisor() : null;
 
 const isFromWorker = (payload) => Boolean(payload.fromWorker);
 
-const createFingerprint = () => Math.random().toString(36).substring(2);
+const createFingerprint = () => crypto.randomBytes(64).toString('hex');
 
 const sha256 = (data) =>
   crypto.createHash('sha256').update(data, 'binary').digest('hex');
