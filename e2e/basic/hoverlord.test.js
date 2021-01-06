@@ -1,4 +1,4 @@
-const { spawn, call, send, shutdown } = require('./index');
+const { spawn, call, send, shutdown } = require('hoverlord');
 
 const findDuplicates = (arr) =>
   arr.filter((item, index) => arr.indexOf(item) != index);
@@ -6,7 +6,7 @@ const findDuplicates = (arr) =>
 describe('hoverlord', () => {
   it('can call from the main process', async () => {
     await spawn(() => {
-      const { receive, reply } = require('./index');
+      const { receive, reply } = require('hoverlord');
       return receive((state, message) => {
         switch (message.content) {
           case 'ping':
@@ -31,7 +31,7 @@ describe('hoverlord', () => {
 
   it('can call a process from another process', async () => {
     await spawn(() => {
-      const { receive, reply } = require('./index');
+      const { receive, reply } = require('hoverlord');
       return receive(
         (state, message) => {
           if (
@@ -50,7 +50,7 @@ describe('hoverlord', () => {
     }, 'statefulActor');
 
     await spawn(() => {
-      const { receive, reply, call } = require('./index');
+      const { receive, reply, call } = require('hoverlord');
       return receive((state, message) => {
         switch (message.content) {
           case 'do_the_call': {
@@ -85,7 +85,7 @@ describe('hoverlord', () => {
 
   it('should not create duplicate fingerprints', async () => {
     await spawn(() => {
-      const { receive, reply } = require('./index');
+      const { receive, reply } = require('hoverlord');
       return receive((_, message) => {
         const [term, count] = message.content;
         if (term === 'ping') {

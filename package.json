@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "e2e": "node e2e/index.js basic",
     "lint": "eslint ."
   },
   "repository": {
