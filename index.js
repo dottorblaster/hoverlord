@@ -5,7 +5,6 @@ const {
   threadId,
 } = require('worker_threads');
 const crypto = require('crypto');
-const { writeFile } = require('fs');
 
 const { createSupervisor } = require('./supervisor');
 
@@ -15,37 +14,23 @@ const isFromWorker = (payload) => Boolean(payload.fromWorker);
 
 const createFingerprint = () => crypto.randomBytes(64).toString('hex');
 
-const sha256 = (data) =>
-  crypto.createHash('sha256').update(data, 'binary').digest('hex');
-
 const createWorkerContent = (jobCode) => `
-  import { createRequire } from 'module';
-  const require = createRequire('${process.cwd()}/');
-  
   (${jobCode})();
 `;
 
 const spawn = (job, name) => {
   return new Promise((resolve) => {
     const jobCode = job.toString();
-    const fileHash = sha256(jobCode);
-    const workerPath = `/tmp/${fileHash}.mjs`;
     const workerContent = createWorkerContent(jobCode);
-    writeFile(workerPath, workerContent, (err) => {
-      if (err) {
-        return console.error(`Error in creating ${workerPath}: ${err}`);
+    const actor = new Worker(workerContent, { eval: true });
+    actor.on('message', (payload) => {
+      if (isFromWorker(payload)) {
+        const { recipient } = payload;
+        masterSupervisor.send(recipient, payload);
       }
-
-      const actor = new Worker(workerPath);
-      actor.on('message', (payload) => {
-        if (isFromWorker(payload)) {
-          const { recipient } = payload;
-          masterSupervisor.send(recipient, payload);
-        }
-      });
-      masterSupervisor.store(name, actor);
-      resolve(actor);
     });
+    masterSupervisor.store(name, actor);
+    resolve(actor);
   });
 };
 
