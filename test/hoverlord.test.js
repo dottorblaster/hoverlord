@@ -1,4 +1,4 @@
-const { spawn, call, send, shutdown } = require('./index');
+const { spawn, call, send, shutdown } = require('./../index');
 
 const findDuplicates = (arr) =>
   arr.filter((item, index) => arr.indexOf(item) != index);
@@ -103,4 +103,23 @@ describe('hoverlord', () => {
     const duplicates = [...new Set(findDuplicates(fingerprints))];
     expect(duplicates).toHaveLength(0);
   });
+
+  it('should be able to include files', async () => {
+    await spawn(({ receive, reply }) => {
+      return receive((_, message) => {
+        const answer = require('./test/includes/export-42');
+        const [term] = message.content;
+        if (term === 'ping') {
+          reply(message, ['pong', answer]);
+        }
+      });
+    }, 'receiver');
+
+    const response = await call('receiver', ['ping']);
+
+    shutdown();
+
+    expect(response.content).toEqual(['pong', 42]);
+  });
+
 });
