@@ -14,9 +14,10 @@ const isFromWorker = (payload) => Boolean(payload.fromWorker);
 
 const createFingerprint = () => crypto.randomBytes(64).toString('hex');
 
-const createWorkerContent = (jobCode) => `
-  (${jobCode})();
-`;
+const createWorkerContent = (jobCode) => {
+  const hoverlordFile = __filename.replace(/\\/g, '\\\\'); // in case of windows system
+  return `(${jobCode})(require('${hoverlordFile}'));`;
+}
 
 const spawn = (job, name) => {
   return new Promise((resolve) => {
