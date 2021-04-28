@@ -14,15 +14,24 @@ const isFromWorker = (payload) => Boolean(payload.fromWorker);
 
 const createFingerprint = () => crypto.randomBytes(64).toString('hex');
 
-const createWorkerContent = (jobCode) => {
-  return `(${jobCode})(require(${JSON.stringify(__filename)}));`;
+const createWorkerContent = (job, sharedVarNames) => {
+  let sharedVarsCode = '';
+  const currentFileNameAsString =  JSON.stringify(__filename);
+  if(sharedVarNames.length > 0) {
+    sharedVarsCode = `
+      let {${sharedVarNames.join(",")}} = require('worker_threads').workerData;
+    `;
+  }
+  return `
+    ${sharedVarsCode}
+    (${job.toString()})(require(${currentFileNameAsString}));
+  `;
 }
 
-const spawn = (job, name) => {
+const spawn = (job, name, vars = {}) => {
   return new Promise((resolve) => {
-    const jobCode = job.toString();
-    const workerContent = createWorkerContent(jobCode);
-    const actor = new Worker(workerContent, { eval: true });
+    const workerContent = createWorkerContent(job, Object.keys(vars));
+    const actor = new Worker(workerContent, { eval: true, workerData: vars });
     actor.on('message', (payload) => {
       if (isFromWorker(payload)) {
         const { recipient } = payload;

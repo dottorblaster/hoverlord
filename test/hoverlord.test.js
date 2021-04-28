@@ -147,4 +147,28 @@ describe('hoverlord', () => {
 
     expect(result).toBe(3);
   });
+
+  it('should pass the target object to the job', async () => {
+    const object1 = {
+      simpleKey1: 'simpleValue1'
+    };
+    const object2 = {
+      simpleKey2: 'simpleValue2'
+    };
+
+    await spawn(({receive, reply}) => {
+      return receive((_, message) => {
+        const [term] = message.content;
+        if (term === 'ping') {
+          reply(message, ['pong', object1.simpleKey1, object2.simpleKey2]);
+        }
+      });
+    }, 'receiver', {object1, object2});
+
+    const response = await call('receiver', ['ping']);
+
+    shutdown();
+
+    expect(response.content).toEqual(['pong', 'simpleValue1', 'simpleValue2']);
+  });
 });
