@@ -14,9 +14,9 @@ const isFromWorker = (payload) => Boolean(payload.fromWorker);
 
 const createFingerprint = () => crypto.randomBytes(64).toString('hex');
 
-const createWorkerContent = (jobCode) => `
-  (${jobCode})();
-`;
+const createWorkerContent = (jobCode) => {
+  return `(${jobCode})(require(${JSON.stringify(__filename)}));`;
+}
 
 const spawn = (job, name) => {
   return new Promise((resolve) => {

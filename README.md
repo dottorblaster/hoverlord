@@ -8,15 +8,13 @@ Here's a code snippet, make good use of it.
 const http = require('http');
 const { spawn, send } = require('hoverlord');
 
-spawn(() => {
-  const { receive } = require('hoverlord');
+spawn(({ receive }) => {
   receive((_state, { content }) => {
     console.log(`log: ${message}`);
   });
 }, 'logger');
 
-spawn(() => {
-  const { receive, send } = require('hoverlord');
+spawn(({ receive, send }) => {
   return receive((state, message) => {
     switch (message.content) {
       case 'ping':

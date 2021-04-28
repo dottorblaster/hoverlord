@@ -1,12 +1,11 @@
-const { spawn, call, send, shutdown } = require('./index');
+const { spawn, call, send, shutdown } = require('./../index');
 
 const findDuplicates = (arr) =>
   arr.filter((item, index) => arr.indexOf(item) != index);
 
 describe('hoverlord', () => {
   it('can call from the main process', async () => {
-    await spawn(() => {
-      const { receive, reply } = require('./index');
+    await spawn(({ receive, reply }) => {
       return receive((state, message) => {
         switch (message.content) {
           case 'ping':
@@ -30,8 +29,7 @@ describe('hoverlord', () => {
   });
 
   it('can call a process from another process', async () => {
-    await spawn(() => {
-      const { receive, reply } = require('./index');
+    await spawn(({ receive, reply }) => {
       return receive(
         (state, message) => {
           if (
@@ -49,8 +47,7 @@ describe('hoverlord', () => {
       );
     }, 'statefulActor');
 
-    await spawn(() => {
-      const { receive, reply, call } = require('./index');
+    await spawn(({ receive, reply, call }) => {
       return receive((state, message) => {
         switch (message.content) {
           case 'do_the_call': {
@@ -84,8 +81,7 @@ describe('hoverlord', () => {
   });
 
   it('should not create duplicate fingerprints', async () => {
-    await spawn(() => {
-      const { receive, reply } = require('./index');
+    await spawn(({ receive, reply }) => {
       return receive((_, message) => {
         const [term, count] = message.content;
         if (term === 'ping') {
@@ -107,4 +103,23 @@ describe('hoverlord', () => {
     const duplicates = [...new Set(findDuplicates(fingerprints))];
     expect(duplicates).toHaveLength(0);
   });
+
+  it('should be able to include files', async () => {
+    await spawn(({ receive, reply }) => {
+      return receive((_, message) => {
+        const answer = require('./test/includes/export-42');
+        const [term] = message.content;
+        if (term === 'ping') {
+          reply(message, ['pong', answer]);
+        }
+      });
+    }, 'receiver');
+
+    const response = await call('receiver', ['ping']);
+
+    shutdown();
+
+    expect(response.content).toEqual(['pong', 42]);
+  });
+
 });
