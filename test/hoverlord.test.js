@@ -122,4 +122,29 @@ describe('hoverlord', () => {
     expect(response.content).toEqual(['pong', 42]);
   });
 
+  it('can send message to process by threadId', async () => {
+    const process = await spawn(({ receive, reply }) => {
+      return receive((state, message) => {
+        switch (message.content) {
+          case 'ping':
+            return state + 1;
+          case 'pang':
+            reply(message, state);
+            return state;
+          default:
+            return state;
+        }
+      }, 0);
+    }, 'test');
+
+    send(process.threadId, 'ping');
+    send(process.threadId, 'ping');
+    send(process.threadId, 'ping');
+
+    const { content: result } = await call('test', 'pang');
+
+    shutdown();
+
+    expect(result).toBe(3);
+  });
 });

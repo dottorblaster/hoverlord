@@ -27,26 +27,30 @@ class Supervisor {
     }
   }
 
-  // TODO
   getProcessByThreadId(id) {
-    return id;
+    for (const name in this.processes) {
+      if (this.processes[name].threadId === id) {
+        return this.processes[name];
+      }
+    }
   }
 
   send(recipient, payload) {
+    let process = null;
+
     if (typeof recipient === 'number') {
-      for (const name in this.processes) {
-        if (this.processes[name].threadId === recipient) {
-          this.processes[name].postMessage(payload);
-          return true;
-        }
-      }
+      process = this.getProcessByThreadId(recipient);
     }
 
     if (typeof recipient === 'string' && this.isNamePresent(recipient)) {
-      const process = this.getProcess(recipient);
+      process = this.getProcess(recipient);
+    }
+
+    if (process) {
       process.postMessage(payload);
       return true;
     }
+
     return false;
   }
 
