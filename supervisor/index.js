@@ -36,15 +36,10 @@ class Supervisor {
   }
 
   send(recipient, payload) {
-    let process = null;
-
-    if (typeof recipient === 'number') {
-      process = this.getProcessByThreadId(recipient);
-    }
-
-    if (typeof recipient === 'string' && this.isNamePresent(recipient)) {
-      process = this.getProcess(recipient);
-    }
+    const process =
+      typeof recipient === 'string'
+        ? this.getProcess(recipient)
+        : this.getProcessByThreadId(recipient);
 
     if (process) {
       process.postMessage(payload);
