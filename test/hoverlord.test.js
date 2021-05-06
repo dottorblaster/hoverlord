@@ -150,25 +150,48 @@ describe('hoverlord', () => {
 
   it('should pass the target object to the job', async () => {
     const object1 = {
-      simpleKey1: 'simpleValue1'
+      simpleKey1: 'simpleValue1',
     };
     const object2 = {
-      simpleKey2: 'simpleValue2'
+      simpleKey2: 'simpleValue2',
     };
 
-    await spawn(({receive, reply}) => {
-      return receive((_, message) => {
-        const [term] = message.content;
-        if (term === 'ping') {
-          reply(message, ['pong', object1.simpleKey1, object2.simpleKey2]);
-        }
-      });
-    }, 'receiver', {object1, object2});
+    await spawn(
+      ({ receive, reply }) => {
+        return receive((_, message) => {
+          const [term] = message.content;
+          if (term === 'ping') {
+            reply(message, ['pong', object1.simpleKey1, object2.simpleKey2]);
+          }
+        });
+      },
+      'receiver',
+      { object1, object2 },
+    );
 
     const response = await call('receiver', ['ping']);
 
     shutdown();
 
     expect(response.content).toEqual(['pong', 'simpleValue1', 'simpleValue2']);
+  });
+
+  it('should call process by name or trhead-id', async () => {
+    const process = await spawn(({ receive, reply }) => {
+      return receive((_, message) => {
+        const [term] = message.content;
+        if (term === 'ping') {
+          reply(message, ['pong', `I'm Process`]);
+        }
+      });
+    }, 'processName');
+
+    const responseByName = await call('processName', ['ping']);
+    const responseByThreadId = await call(process.threadId, ['ping']);
+
+    shutdown();
+
+    expect(responseByName.content).toEqual(['pong', `I'm Process`]);
+    expect(responseByThreadId.content).toEqual(responseByName.content);
   });
 });
