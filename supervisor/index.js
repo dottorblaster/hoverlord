@@ -21,10 +21,16 @@ class Supervisor {
     return Object.prototype.hasOwnProperty.call(this.processes, name);
   }
 
-  getProcess(name) {
+  getProcessByName(name) {
     if (this.isNamePresent(name)) {
       return this.processes[name];
     }
+  }
+
+  getProcess(recipient) {
+    return typeof recipient === 'string'
+      ? this.getProcessByName(recipient)
+      : this.getProcessByThreadId(recipient);
   }
 
   getProcessByThreadId(id) {
@@ -36,10 +42,7 @@ class Supervisor {
   }
 
   send(recipient, payload) {
-    const process =
-      typeof recipient === 'string'
-        ? this.getProcess(recipient)
-        : this.getProcessByThreadId(recipient);
+    const process = this.getProcess(recipient);
 
     if (process) {
       process.postMessage(payload);
