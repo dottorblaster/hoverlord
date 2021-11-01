@@ -27,7 +27,7 @@
   "homepage": "https://github.com/dottorblaster/hoverlord#readme",
   "devDependencies": {
     "@babel/core": "7.16.0",
-    "@babel/eslint-parser": "7.15.8",
+    "@babel/eslint-parser": "7.16.0",
     "@babel/plugin-syntax-class-properties": "7.12.13",
     "@babel/preset-env": "7.16.0",
     "eslint": "8.0.1",
