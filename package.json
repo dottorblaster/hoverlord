@@ -29,7 +29,7 @@
     "@babel/core": "7.17.10",
     "@babel/eslint-parser": "7.17.0",
     "@babel/plugin-syntax-class-properties": "7.12.13",
-    "@babel/preset-env": "7.17.10",
+    "@babel/preset-env": "7.18.0",
     "eslint": "8.15.0",
     "eslint-plugin-jest": "26.2.2",
     "husky": "8.0.0",
