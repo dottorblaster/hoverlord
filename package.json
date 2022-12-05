@@ -30,7 +30,7 @@
     "@babel/eslint-parser": "7.19.1",
     "@babel/plugin-syntax-class-properties": "7.12.13",
     "@babel/preset-env": "7.20.2",
-    "eslint": "8.28.0",
+    "eslint": "8.29.0",
     "eslint-plugin-jest": "26.8.7",
     "husky": "8.0.2",
     "jest": "28.1.3",
